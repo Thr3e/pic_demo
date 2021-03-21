@@ -1,6 +1,8 @@
 <template>
   <div id="left-menu">
-
+    <ul class="main-list">
+      <li class="main-item"></li>
+    </ul>
   </div>
 </template>
 

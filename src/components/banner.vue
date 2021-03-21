@@ -30,13 +30,13 @@
     <div class="left-buttons fr">
       <div class="btn normal-btn">
         <p class="btn-title">
-          <i class="iconfont" style="font-style: normal">&#xe6b2;</i>
+          <i class="iconfont" style="font-style: normal">&#xe649;</i>
           预览
         </p>
       </div>
       <div class="btn long-btn">
         <p class="btn-title">
-          <i class="iconfont" style="font-style: normal">&#xe6b2;</i>
+          <i class="iconfont" style="font-style: normal">&#xe60d;</i>
           无水印下载
         </p>
       </div>
