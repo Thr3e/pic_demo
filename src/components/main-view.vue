@@ -53,6 +53,5 @@ export default {
 }
 .flex-rect {
   height: 100%;
-  overflow: auto;
 }
 </style>
