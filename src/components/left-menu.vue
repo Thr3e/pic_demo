@@ -119,6 +119,7 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
+  z-index: 99;
   .main-list {
     height: 100%;
     overflow-y: auto;
