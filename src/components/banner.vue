@@ -55,6 +55,8 @@ export default {
   width: 100%;
   height: 4rem;
   background: #fff;
+  position: relative;
+  z-index: 999;
   box-shadow: 0 1px 4px hsl(0deg 0% 88% / 50%);
 }
 .logo {

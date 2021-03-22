@@ -9,7 +9,7 @@
       </li>
     </ul>
     <div class="collapse-box">
-      <Collapse :collapsed="isCollapse"/>
+      <Collapse :collapsed="isCollapse" :req-type="selectType"/>
     </div>
   </div>
 </template>
@@ -27,72 +27,88 @@ export default {
         {
           icon: 'iconwenzi',
           label: '特效字',
+          reqType: 'text',
           isActive: true,
           click: () => {},
         },
         {
           icon: 'iconsucai',
           label: '素材',
+          reqType: 'meta',
           isActive: false,
           click: () => {},
         },
         {
           icon: 'icontupian',
           label: '照片',
+          reqType: 'pic',
           isActive: false,
           click: () => {},
         },
         {
           icon: 'iconbackground',
           label: '背景',
+          reqType: 'back',
           isActive: false,
           click: () => {},
         },
         {
           icon: 'iconmoban',
           label: '模板',
+          reqType: 'modal',
           isActive: false,
           click: () => {},
         },
         {
           icon: 'iconshangchuan',
           label: '上传',
+          reqType: 'update',
           isActive: false,
           click: () => {},
         },
         {
           icon: 'icontool',
           label: '工具',
+          reqType: 'tool',
           isActive: false,
           click: () => {},
         },
         {
           icon: 'iconmoban',
           label: '特效',
+          reqType: 'none',
           isActive: false,
           click: () => {},
         },
         {
           icon: 'iconpiliang',
           label: '批量',
+          reqType: 'none',
           isActive: false,
           click: () => {},
         },
       ],
+      selectType: 'text',
       isCollapse: false
     };
   },
   methods: {
     mainBtnClick(o) {
       this.operations.forEach(operator => {
-        operator.isActive = operator.label === o.label;
+        if (operator.label === o.label) {
+          operator.isActive = true;
+          this.selectType = operator.reqType;
+        } else {
+          operator.isActive = false;
+        }
       })
+      this.openCollapse();
     },
-    openCollpase() {
-      this.isCollapse = true;
+    openCollapse() {
+      this.$store.commit('openCollapse');
     },
-    closeCollpase() {
-      this.isCollapse = false;
+    closeCollapse() {
+      this.$store.commit('closeCollapse');
     }
   },
 };

@@ -1,0 +1,42 @@
+@font-face {
+  font-family: "Monoton";
+  src: url("../font/Monoton.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "simhei";
+  src: url("../font/simhei.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "simkai";
+  src: url("../font/simkai.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "pang";
+  src: url("../font/pang.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "light";
+  src: url("../font/light.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "cang";
+  src: url("../font/cang01.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Desolator";
+  src: url("../font/Desolator.otf");
+  font-weight: normal;
+  font-style: normal;
+}
