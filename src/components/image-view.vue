@@ -1,8 +1,6 @@
 <template>
   <div id="image-view" ref="rootBox">
-    <div class="center-area" :style="{width: showSize.width + 'px', height: showSize.height + 'px'}">
-      <Poster/>
-    </div>
+      <div ref="zrenderCanvas"></div>
     <div class="toolbox">
       <div class="scale-box">
         <span class="scale-btn" @click="changeScale(-1)">-</span>
@@ -17,6 +15,7 @@
 
 <script>
 import Poster from './poster'
+import * as zrender from 'zrender';
 export default {
   name: "ImageView",
   components:{
@@ -24,6 +23,8 @@ export default {
   },
   data() {
     return {
+      zr: {},
+      mainGroup: {},
       scale: 0.4,
       original: {
         width: 1920,
@@ -35,16 +36,10 @@ export default {
     scaleLabel() {
       return (this.scale * 100).toFixed(0) + '%';
     },
-    showSize() {
-      return {
-        width: this.original.width * this.scale,
-        height: this.original.height * this.scale
-      }
-    }
   },
   methods: {
     changeScale(step) {
-      let scale = parseFloat(this.scale + step * 0.05);
+      let scale = parseFloat(this.scale + step * (this.scale >= 1 ? 0.1 : 0.05));
       if (scale > 2) {
         scale = 2;
       }
@@ -52,16 +47,119 @@ export default {
         scale = 0.1;
       }
       this.scale = scale;
+      this.mainGroupScale();
     },
     setScaleOriginal() {
-      this.scale = 1
+      this.scale = 1;
+      this.mainGroupScale();
     },
     setScaleBest() {
-      this.scale = 0.4
-    }
+      this.scale = 0.4;
+      this.mainGroupScale();
+    },
+    initZr() {
+      const width = this.$refs.rootBox.offsetWidth;
+      const height = this.$refs.rootBox.offsetHeight;
+      this.zr = zrender.init(this.$refs.zrenderCanvas, {
+        renderer: 'canvas',
+        width,
+        height,
+      })
+      this.mainGroup = new zrender.Group({
+        position: [
+          (width - this.original.width * this.scale) / 2,
+          (height - this.original.height * this.scale) / 2,
+        ],
+        scale: [this.scale, this.scale],
+        original: [width / 2, height / 2]
+      });
+      const bgRect = new zrender.Rect({
+        silent:true,
+        style: {
+          fill: '#6B2737',
+        },
+        shape: {
+          width: this.original.width,
+          height: this.original.height
+        }
+      })
+      this.mainGroup.add(bgRect);
+      this.zr.add(this.mainGroup);
+    },
+    mainGroupScale() {
+      if (this.mainGroup && this.mainGroup.attr) {
+        this.mainGroup.attr('scale', [this.scale, this.scale]);
+      }
+    },
+    addTextItem(content, fontSize) {
+      const textGroup = new zrender.Group({
+        
+        });
+      const textRect = new zrender.Rect({
+        draggable: true,
+        name: 'textRect',
+        cursor: 'move',
+        style: {
+          text:content,             //文字
+          textFill:'#E4FDE1',             //文字颜色
+          fontSize: fontSize * 10,                 //文字小
+          fontFamily:'pang',               //字体
+          transformText:true,
+          lineWidth: 3,
+          strokeNoScale: true,
+          fill: 'transparent',
+          stroke: '#114B5F',
+          z:1
+        },
+        shape: {
+          r: 5,
+          x: 0,
+          y: 0,
+          width: fontSize * 10 * content.length,
+          height: fontSize * 10
+        }
+      })
+      textGroup.add(textRect);
+      const rotateBtn = new zrender.Circle({
+        shape: {
+          cx: fontSize * 10 * content.length,
+          cy: fontSize * 10,
+          r: 15
+        }, 
+        isMouseDown: false,
+        cursor: 'se-resize',
+        style: {
+          lineWidth: 1,
+          strokeNoScale: true,
+          fill: '#fff',
+          stroke: '#333',
+          z:2
+        },
+        onmousedown(e) {
+          this.isMouseDown = true;
+        },
+        onmousemove(e) {
+          if(this.isMouseDown) {
+            this.attr({
+              shape: {
+                cx: e.event.x,
+                cy: e.event.y,
+              }
+            })
+          }
+        },
+        onmouseup(e) {
+          this.isMouseDown = false;
+        }
+      })
+      textGroup.add(rotateBtn);
+      this.mainGroup.add(textGroup)
+    },
   },
   mounted() {
     this.setScaleBest();
+    this.initZr();
+    this.addTextItem('双击编辑文字', 16);
   }
 };
 </script>
@@ -71,13 +169,6 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
-  .center-area {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #fff;
-  }
   .toolbox {
     user-select: none;
     position: absolute;
