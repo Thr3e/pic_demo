@@ -1,13 +1,26 @@
 <template>
-  <div id="poster">
-
+  <div id="poster" :style="{background:bgColor}">
+    <PosterItem />
   </div>
 </template>
 
 <script>
+import PosterItem from  './poster-item'
 export default {
   name: 'Poster',
-
+  components: {
+    PosterItem
+  },
+  data() {
+    return {
+      bgColor: '#aaa'
+    }
+  },
+  methods: {
+    setBgColor(val) {
+      this.bgColor = val;
+    }
+  }
 }
 </script>
 
@@ -16,5 +29,6 @@ export default {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 </style>

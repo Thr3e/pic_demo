@@ -19,7 +19,7 @@
           <template v-if="tabData && tabData.length > 0">
             <div class="data-entry" v-for="(data, idx) in tabData" :key="'entry-' + idx">
               <p class="entry-title">{{data.label}}</p>
-              <span class="more" @click="clickMore()">更多&gt;</span>
+              <span class="more" @click="clickMore()">更多<i class="iconfont iconzhankai"></i></span>
               <div class="entry-list">
                 <div class="entry-item" v-for="(item, i) in data.items" :key="'entry-item-' + i">
                   <img :src="item.src" :class="data.iconType">
@@ -32,8 +32,8 @@
       </div>
     </div>
     <div class="collpase-btn" @click="coll()">
-      <span v-if="$store.state.leftCollapse">&gt;</span>
-      <span v-else>&lt;</span>
+      <span v-if="$store.state.leftCollapse" class="iconfont iconzhankai"></span>
+      <span v-else class="iconfont iconxuanxiangqiajiantou"></span>
     </div>
   </div>
 </template>
