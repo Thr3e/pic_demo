@@ -131,6 +131,47 @@ export default {
         });
       }
     },
+    addImgGroup(image){
+      const shape = {
+        width: 100,
+        height: 100,
+      };
+      const funcGroup = this.addBoxFunctionBorder(shape);
+      const borderRect = new zrender.Rect({
+        style: {
+          fill: "transparent",
+          stroke: "#F45B69",
+          lineWidth: 3,
+          strokeNoScale: true,
+          transformText: true,
+        },
+        shape: {
+          x: 0,
+          y: 0,
+          width: shape.width,
+          height: shape.height
+        }
+      })
+      funcGroup.add(borderRect);
+      const imgRect = new zrender.Image({
+        style: {
+          image,
+          x: 0,
+          y: 0,
+          width: shape.width,
+          height: shape.height
+        },
+        onmousedown: ((e) => {
+          funcGroup.isMouseDown = true;
+          funcGroup.mousePonit = e.event;
+          this.activeItem = funcGroup;
+          this.activeType = "drag";
+          e.stop(e);
+        }).bind(this),
+      });
+      funcGroup.add(imgRect);
+      this.mainGroup.add(funcGroup);
+    },
     addTextGroup(text, fontSize, fontFamily) {
       if (!text) {
         return;
@@ -140,7 +181,24 @@ export default {
         height: fontSize * 10,
       };
       const funcGroup = this.addBoxFunctionBorder(shape);
+      const borderRect = new zrender.Rect({
+        style: {
+          fill: "transparent",
+          stroke: "#F45B69",
+          lineWidth: 3,
+          strokeNoScale: true,
+          transformText: true,
+        },
+        shape: {
+          x: 0,
+          y: 0,
+          width: shape.width,
+          height: shape.height
+        }
+      })
+      funcGroup.add(borderRect);
       const textRect = new zrender.Rect({
+        name: 'content',
         shape: {
           x: 0,
           y: 0,
@@ -150,9 +208,6 @@ export default {
         cursor: "move",
         style: {
           fill: "transparent",
-          stroke: "#F45B69",
-          lineWidth: 3,
-          strokeNoScale: true,
           text,
           fontFamily,
           textFill: "#fff",
@@ -278,7 +333,8 @@ export default {
   mounted() {
     this.setScaleBest();
     this.initZr();
-    this.addTextGroup("双击编辑文字", 16, "pang");
+    this.addTextGroup("请输入文字", 16, "pang");
+    this.addImgGroup(require('../assets/imgs/meta_icon/canju.png'))
   },
 };
 </script>
