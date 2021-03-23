@@ -19,6 +19,7 @@
 <script>
 import Poster from "./poster";
 import * as zrender from "zrender";
+import Bus from '../service/eventBus'
 export default {
   name: "ImageView",
   components: {
@@ -38,6 +39,7 @@ export default {
       },
       activeItem: null, //zrGroup对象
       activeType: "", //'drag' |'rotate' | 'scale'
+      selectItem: null, //zrGroup对象
     };
   },
   computed: {
@@ -140,24 +142,17 @@ export default {
         width: 100,
         height: 100,
       };
-      const funcGroup = this.addBoxFunctionBorder(shape);
-      const borderRect = new zrender.Rect({
-        style: {
-          fill: "transparent",
-          stroke: "#F45B69",
-          lineWidth: 3,
-          strokeNoScale: true,
-          transformText: true,
-        },
-        shape: {
-          x: 0,
-          y: 0,
-          width: shape.width,
-          height: shape.height
-        }
-      })
-      funcGroup.add(borderRect);
+      const funcGroup = new zrender.Group({
+        position: [
+          (this.original.width - shape.width) / 2,
+          (this.original.height - shape.height) / 2,
+        ],
+        isMouseDown: false,
+        type: 'meta'
+      });
       const imgRect = new zrender.Image({
+        name: 'content',
+        shape,
         style: {
           image,
           x: 0,
@@ -165,15 +160,13 @@ export default {
           width: shape.width,
           height: shape.height
         },
-        onmousedown: ((e) => {
-          funcGroup.isMouseDown = true;
-          funcGroup.mousePonit = e.event;
-          this.activeItem = funcGroup;
-          this.activeType = "drag";
-          e.stop(e);
-        }).bind(this),
+        onclick: (e => {
+          this.selectItem = funcGroup;
+          e.stop();
+        })
       });
       funcGroup.add(imgRect);
+      this.selectItem = funcGroup;
       this.mainGroup.add(funcGroup);
     },
     addTextGroup(text, fontSize, fontFamily) {
@@ -184,23 +177,14 @@ export default {
         width: text.length * fontSize * 10,
         height: fontSize * 10,
       };
-      const funcGroup = this.addBoxFunctionBorder(shape);
-      const borderRect = new zrender.Rect({
-        style: {
-          fill: "transparent",
-          stroke: "#F45B69",
-          lineWidth: 3,
-          strokeNoScale: true,
-          transformText: true,
-        },
-        shape: {
-          x: 0,
-          y: 0,
-          width: shape.width,
-          height: shape.height
-        }
-      })
-      funcGroup.add(borderRect);
+      const funcGroup = new zrender.Group({
+        position: [
+          (this.original.width - shape.width) / 2,
+          (this.original.height - shape.height) / 2,
+        ],
+        isMouseDown: false,
+        type:'text'
+      });
       const textRect = new zrender.Rect({
         name: 'content',
         shape: {
@@ -209,7 +193,6 @@ export default {
           width: shape.width,
           height: shape.height,
         },
-        cursor: "move",
         style: {
           fill: "transparent",
           text,
@@ -219,25 +202,44 @@ export default {
           transformText: true,
           z: 1,
         },
+        onclick: (e => {
+          this.selectItem = funcGroup;
+          e.stop();
+        })
+      });
+      funcGroup.add(textRect);
+      this.selectItem = funcGroup;
+      this.mainGroup.add(funcGroup);
+    },
+    getBorderRect(shape, father){
+      const funcGroup = new zrender.Group({
+        name: 'funcGroup',
+        position: [0,0],
+        isMouseDown: false,
+      });
+      const borderRect = new zrender.Rect({
+        style: {
+          fill: "transparent",
+          stroke: "#F45B69",
+          lineWidth: 3,
+          strokeNoScale: true,
+          transformText: true,
+        },
+        cursor: "move",
+        shape: {
+          x: 0,
+          y: 0,
+          width: shape.width,
+          height: shape.height
+        },
         onmousedown: ((e) => {
-          funcGroup.isMouseDown = true;
-          funcGroup.mousePonit = e.event;
-          this.activeItem = funcGroup;
+          father.isMouseDown = true;
+          father.mousePonit = e.event;
+          this.activeItem = father;
           this.activeType = "drag";
           e.stop(e);
         }).bind(this),
-      });
-      funcGroup.add(textRect);
-      this.mainGroup.add(funcGroup);
-    },
-    addBoxFunctionBorder(shape) {
-      const funcGroup = new zrender.Group({
-        position: [
-          (this.original.width - shape.width) / 2,
-          (this.original.height - shape.height) / 2,
-        ],
-        isMouseDown: false,
-      });
+      })
       const rotateBtn = new zrender.Circle({
         shape: {
           cx: shape.width + 8,
@@ -253,15 +255,14 @@ export default {
           z: 2,
         },
         onmousedown: ((e) => {
-          funcGroup.isMouseDown = true;
-          funcGroup.mousePonit = e.event;
-          funcGroup.startRot = funcGroup.rotation[0] || 0
-          this.activeItem = funcGroup;
+          father.isMouseDown = true;
+          father.mousePonit = e.event;
+          father.startRot = father.rotation[0] || 0
+          this.activeItem = father;
           this.activeType = "rotate";
           e.stop(e);
         }).bind(this),
       });
-      funcGroup.add(rotateBtn);
       const scaleBtn = new zrender.Circle({
         shape: {
           cx: shape.width + 8,
@@ -277,15 +278,17 @@ export default {
           z: 2,
         },
         onmousedown: ((e) => {
-          funcGroup.isMouseDown = true;
-          funcGroup.mousePonit = e.event;
-          funcGroup.startPonit = scaleBtn.shape;
-          this.activeItem = funcGroup;
+          father.isMouseDown = true;
+          father.mousePonit = e.event;
+          father.startPonit = scaleBtn.shape;
+          this.activeItem = father;
           this.activeType = "scale";
           e.stop(e);
         }).bind(this),
       });
-      funcGroup.add(scaleBtn);
+      funcGroup.add(borderRect)
+      funcGroup.add(rotateBtn)
+      funcGroup.add(scaleBtn)
       return funcGroup;
     },
     moveItem(e) {
@@ -337,6 +340,11 @@ export default {
       if (this.mainGroup && this.mainGroup.childOfName) {
         const bgRect = this.mainGroup.childOfName('bgRect')
         if (bgRect && bgRect.attr) {
+          this.selectItem = null;
+          Bus.$emit('activeItem', {
+            type: 'back',
+            data: {color}
+          });
           bgRect.attr({
             style: {
               fill: color
@@ -349,8 +357,38 @@ export default {
   mounted() {
     this.setScaleBest();
     this.initZr();
-    this.addTextGroup("请输入文字", 16, "pang");
-    this.addImgGroup(require('../assets/imgs/meta_icon/canju.png'))
+    this.addTextGroup("请输入文字", 16, "");
+    this.addImgGroup(require('../assets/imgs/meta_icon/canju.png'));
+    Bus.$on('change-back', data => {
+      if (this.mainGroup && this.mainGroup.childOfName) {
+        this.mainGroup.childOfName('bgRect').attr({
+          style: {
+            fill: data.color
+          }
+        })
+      }
+    })
+    Bus.$on('change-meta', data => {
+      if (this.mainGroup && this.mainGroup.childOfName) {
+        const scale = data.size / this.selectItem.childOfName('content').style.width;
+        this.selectItem.attr({
+          scale: [scale, scale]
+        })
+      }
+    })
+    Bus.$on('change-text', data => {
+      if (this.mainGroup && this.mainGroup.childOfName) {
+        this.selectItem.childOfName('content').attr({
+          style: {...data}
+        })
+      }
+    })
+    Bus.$on('deleteItem', () => {
+      if(this.mainGroup && this.selectItem) {
+        this.mainGroup.remove(this.selectItem);
+        this.selectItem = null;
+      }
+    })
   },
   watch: {
     addData(val) {
@@ -366,6 +404,26 @@ export default {
           break;
         default:
           break;
+      }
+    },
+    selectItem(val, oldval) {
+      if (oldval && oldval.remove) {
+        oldval.remove(oldval.childOfName("funcGroup"));
+      }
+      if (val) {
+        val.add(this.getBorderRect(val.childOfName("content").shape, val));
+        const opt = {
+          type: val.type,
+          data: {}
+        }
+        if (val.type === 'meta') {
+          opt.data = {
+            size: val.childOfName('content').style.width
+          }
+        } else if (val.type === 'text') {
+          opt.data = val.childOfName('content').style;
+        }
+        Bus.$emit('activeItem', opt);
       }
     }
   }

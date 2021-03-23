@@ -24,7 +24,7 @@
                 <div class="entry-item" :class="data.iconType" v-for="(item, i) in data.items" :key="'entry-item-' + i"
                   @click="passCData(item.param)">
                   <img v-if="item.param.type==='meta'" :src="item.src">
-                  <span v-else-if="item.param.type==='text'" :style="{fontFamily: item.param.data}">文字</span>
+                  <span v-else-if="item.param.type==='text'" :style="{fontFamily: item.param.data}">{{item.param.data}}</span>
                   <p v-else-if="item.param.type==='back'" :style="{background: item.param.data}" class="back-item"></p>
                 </div>
               </div>
