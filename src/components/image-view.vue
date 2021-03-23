@@ -72,37 +72,31 @@ export default {
         width,
         height,
       });
-      this.zr.on(
-        "mousemove",
-        ((e) => {
-          if (this.activeItem && this.activeItem.isMouseDown) {
-            switch (this.activeType) {
-              case "drag":
-                this.moveItem(e);
-                break;
-              case "scale":
-                this.scaleItem(e);
-                break;
-              case "rotate":
-                this.rotateItem(e);
-                break;
-              default:
-                break;
-            }
+      this.zr.on("mousemove", ((e) => {
+        if (this.activeItem && this.activeItem.isMouseDown) {
+          switch (this.activeType) {
+            case "drag":
+              this.moveItem(e);
+              break;
+            case "scale":
+              this.scaleItem(e);
+              break;
+            case "rotate":
+              this.rotateItem(e);
+              break;
+            default:
+              break;
           }
-        }).bind(this)
-      );
-      this.zr.on(
-        "mouseup",
-        ((event) => {
-          if (this.activeItem) {
-            this.activeItem.isMouseDown = false;
-            this.activeItem.mousePonit = undefined;
-            this.activeItem = null;
-            this.activeType = "";
-          }
-        }).bind(this)
-      );
+        }
+      }).bind(this));
+      this.zr.on("mouseup", ((event) => {
+        if (this.activeItem) {
+          this.activeItem.isMouseDown = false;
+          this.activeItem.mousePonit = undefined;
+          this.activeItem = null;
+          this.activeType = "";
+        }
+      }).bind(this));
       this.mainGroup = new zrender.Group({
         position: [
           (width - this.original.width * this.scale) / 2,
@@ -126,7 +120,15 @@ export default {
     },
     mainGroupScale() {
       if (this.mainGroup && this.mainGroup.attr) {
-        this.mainGroup.attr("scale", [this.scale, this.scale]);
+        const width = this.$refs.rootBox.offsetWidth;
+        const height = this.$refs.rootBox.offsetHeight;
+        this.mainGroup.attr({
+          scale: [this.scale, this.scale],
+          position: [
+            (width - this.original.width * this.scale) / 2,
+            (height - this.original.height * this.scale) / 2,
+          ],
+        });
       }
     },
     addTextGroup(text, fontSize, fontFamily) {
@@ -194,6 +196,7 @@ export default {
         onmousedown: ((e) => {
           funcGroup.isMouseDown = true;
           funcGroup.mousePonit = e.event;
+          funcGroup.startRot = funcGroup.rotation[0] || 0
           this.activeItem = funcGroup;
           this.activeType = "rotate";
           e.stop(e);
@@ -238,25 +241,37 @@ export default {
       });
     },
     scaleItem(e) {
+      const {width, height} = this.activeItem.getBoundingRect();
       const deltaX =
-        (e.event.x - this.activeItem.mousePonit.x) /
-        (this.activeItem.startPonit.cx - 8);
+        (e.event.x - this.activeItem.mousePonit.x) / (this.scale * width)
       const deltaY =
-        (e.event.y - this.activeItem.mousePonit.y) /
-        (this.activeItem.startPonit.cy - 8);
-      console.log(deltaX, deltaY);
+        (e.event.y - this.activeItem.mousePonit.y) / (this.scale * height)
+      this.activeItem.mousePonit = e.event;
       this.activeItem.attr({
-        scale: [1 + deltaX / this.scale, 1 + deltaY / this.scale],
+        scale: [this.activeItem.scale[0] + deltaX, this.activeItem.scale[1] + deltaY],
       });
     },
     rotateItem(e) {
-      const origin = this.activeItem.position;
-      const start = [this.activeItem.mousePonit.x, this.activeItem.mousePonit.y];
-      const end = [e.event.x, e.event.y];
-      let angle = Math.atan((end[1] - origin[1])/(end[0] - origin[0])) - Math.atan((start[1] - origin[1])/(start[0] - origin[0]));
-      this.activeItem.mousePonit = e.event;
+      const {width, height} = this.activeItem.getBoundingRect();
+      const orgX = (this.activeItem.position[0] + width / 2) * this.scale;
+      const orgY = (this.activeItem.position[1] + height / 2) * this.scale;
+      const startX = this.activeItem.mousePonit.offsetX - this.mainGroup.position[0];
+      const startY = this.activeItem.mousePonit.offsetY - this.mainGroup.position[1];
+      const endX = e.event.offsetX - this.mainGroup.position[0];
+      const endY = e.event.offsetY - this.mainGroup.position[1];
+
+      //2个点之间的角度获取
+      let c1 = Math.atan2(startY - orgY, startX - orgX);
+      let c2 = Math.atan2(endY - orgY, endX - orgX);
+      c1 = c1 <= -(Math.PI / 2) ? (Math.PI * 2 + c1) : c1;
+      c2 = c2 <= -(Math.PI / 2) ? (Math.PI * 2 + c2) : c2;
+
+      //夹角获取
+      let angle = c1 - c2;
+      angle = angle < 0 ? (angle + 2 * Math.PI) : angle;
       this.activeItem.attr({
-        rotation: [this.activeItem.rotation + angle]
+        rotation: [angle + this.activeItem.startRot],
+        origin: [width / 2, height / 2]
       })
     },
   },
