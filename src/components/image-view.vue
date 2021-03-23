@@ -24,6 +24,9 @@ export default {
   components: {
     Poster,
   },
+  props: {
+    addData: null
+  },
   data() {
     return {
       zr: {},
@@ -106,6 +109,7 @@ export default {
         original: [width / 2, height / 2],
       });
       const bgRect = new zrender.Rect({
+        name:'bgRect',
         silent: true,
         style: {
           fill: "#6B2737",
@@ -329,6 +333,18 @@ export default {
         origin: [width / 2, height / 2]
       })
     },
+    changeBgColor(color) {
+      if (this.mainGroup && this.mainGroup.childOfName) {
+        const bgRect = this.mainGroup.childOfName('bgRect')
+        if (bgRect && bgRect.attr) {
+          bgRect.attr({
+            style: {
+              fill: color
+            }
+          })
+        }
+      }
+    }
   },
   mounted() {
     this.setScaleBest();
@@ -336,6 +352,23 @@ export default {
     this.addTextGroup("请输入文字", 16, "pang");
     this.addImgGroup(require('../assets/imgs/meta_icon/canju.png'))
   },
+  watch: {
+    addData(val) {
+      switch(val.type) {
+        case 'text':
+          this.addTextGroup("请输入文字", 16, val.data);
+          break;
+        case 'meta':
+          this.addImgGroup(val.data);
+          break;
+        case 'back':
+          this.changeBgColor(val.data)
+          break;
+        default:
+          break;
+      }
+    }
+  }
 };
 </script>
 

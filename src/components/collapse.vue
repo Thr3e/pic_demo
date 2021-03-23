@@ -21,7 +21,8 @@
               <p class="entry-title">{{data.label}}</p>
               <span class="more" @click="clickMore()">更多<i class="iconfont iconzhankai"></i></span>
               <div class="entry-list">
-                <div class="entry-item" :class="data.iconType" v-for="(item, i) in data.items" :key="'entry-item-' + i">
+                <div class="entry-item" :class="data.iconType" v-for="(item, i) in data.items" :key="'entry-item-' + i"
+                  @click="passCData(item.param)">
                   <img v-if="item.param.type==='meta'" :src="item.src">
                   <span v-else-if="item.param.type==='text'" :style="{fontFamily: item.param.data}">文字</span>
                   <p v-else-if="item.param.type==='back'" :style="{background: item.param.data}" class="back-item"></p>
@@ -82,7 +83,12 @@ export default {
       const basicData = getBasicDataByType(type);
       this.tabBasicData = basicData.tabBasicData;
       this.btnData = basicData.btnData;
+    },
+    passCData(val){
+      //触发父组件father中的事件
+      this.$emit('getCData',val)
     }
+
   },
   watch: {
     reqType(val) {

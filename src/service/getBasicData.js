@@ -152,19 +152,19 @@ function getMetaBasicData() {
                 items: [{
                     src: require('../assets/imgs/meta_icon/dangao.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/dangao.png',
+                        data: require('../assets/imgs/meta_icon/dangao.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/gaodian.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/gaodian.png',
+                        data: require('../assets/imgs/meta_icon/gaodian.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/jidan.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/jidan.png',
+                        data: require('../assets/imgs/meta_icon/jidan.png'),
                         type: 'meta'
                     }
                 }]
@@ -174,19 +174,19 @@ function getMetaBasicData() {
                 items: [{
                     src: require('../assets/imgs/meta_icon/canju.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/canju.png',
+                        data: require('../assets/imgs/meta_icon/canju.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/huoguo.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/huoguo.png',
+                        data: require('../assets/imgs/meta_icon/huoguo.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/naipin.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/naipin.png',
+                        data: require('../assets/imgs/meta_icon/naipin.png'),
                         type: 'meta'
                     }
                 }]
@@ -196,19 +196,19 @@ function getMetaBasicData() {
                 items: [{
                     src: require('../assets/imgs/meta_icon/kafei.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/kafei.png',
+                        data: require('../assets/imgs/meta_icon/kafei.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/kaoji.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/kaoji.png',
+                        data: require('../assets/imgs/meta_icon/kaoji.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/pijiu.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/pijiu.png',
+                        data: require('../assets/imgs/meta_icon/pijiu.png'),
                         type: 'meta'
                     }
                 }]
@@ -218,19 +218,19 @@ function getMetaBasicData() {
                 items: [{
                     src: require('../assets/imgs/meta_icon/waimai.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/waimai.png',
+                        data: require('../assets/imgs/meta_icon/waimai.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/shutiao.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/shutiao.png',
+                        data: require('../assets/imgs/meta_icon/shutiao.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/yaopin.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/yaopin.png',
+                        data: require('../assets/imgs/meta_icon/yaopin.png'),
                         type: 'meta'
                     }
                 }]
@@ -240,19 +240,19 @@ function getMetaBasicData() {
                 items: [{
                     src: require('../assets/imgs/meta_icon/zhushi.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/zhushi.png',
+                        data: require('../assets/imgs/meta_icon/zhushi.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/zhengcai.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/zhengcai.png',
+                        data: require('../assets/imgs/meta_icon/zhengcai.png'),
                         type: 'meta'
                     }
                 }, {
                     src: require('../assets/imgs/meta_icon/zaocan.png'),
                     param: {
-                        data: '../assets/imgs/meta_icon/zaocan.png',
+                        data: require('../assets/imgs/meta_icon/zaocan.png'),
                         type: 'meta'
                     }
                 }]
