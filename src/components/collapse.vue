@@ -22,7 +22,7 @@
               <span class="more" @click="clickMore()">更多<i class="iconfont iconzhankai"></i></span>
               <div class="entry-list">
                 <div class="entry-item" :class="data.iconType" v-for="(item, i) in data.items" :key="'entry-item-' + i"
-                  @click="passCData(item.param)">
+                  @click="passCData(item.param)" draggable="true" @dragstart="dragstart($event, item)" @dragend="dragend">
                   <img v-if="item.param.type==='meta'" :src="item.src">
                   <span v-else-if="item.param.type==='text'" :style="{fontFamily: item.param.data}">{{item.param.data}}</span>
                   <p v-else-if="item.param.type==='back'" :style="{background: item.param.data}" class="back-item"></p>
@@ -67,6 +67,13 @@ export default {
       } else {
         this.$store.commit('closeCollapse');
       }
+    },
+    dragstart (event, data) {
+      this.$store.commit('closeCollapse');
+      event.dataTransfer.setData('item', JSON.stringify(data.param))
+    },
+    dragend (event) {
+      event.dataTransfer.clearData()
     },
     btnClick(btnItem) {
 
@@ -189,6 +196,7 @@ export default {
               cursor: pointer;
               padding: 3%; 
               text-align: center;
+              user-select: none;
               &:hover {
                 background: #E4FDE1;
               }

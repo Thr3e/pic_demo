@@ -1,6 +1,6 @@
 <template>
   <div id="image-view" ref="rootBox">
-    <div ref="zrenderCanvas"></div>
+    <div ref="zrenderCanvas" @drop="drop" @dragover.prevent></div>
     <div class="toolbox">
       <div class="scale-box">
         <span class="scale-btn" @click="changeScale(-1)">-</span>
@@ -60,6 +60,34 @@ export default {
       }
       this.scale = scale;
       this.mainGroupScale();
+    },
+    drop(e) {
+      let data = {}
+      try {
+        data = JSON.parse(e.dataTransfer.getData('item'))
+      } catch {
+        return;
+      }
+      const {offsetX, offsetY} = e;
+      const [orgX, orgY] = this.mainGroup.position;
+      const scale = this.mainGroup.scale[0];
+      const pos = [
+        (offsetX - orgX) / scale,
+        (offsetY - orgY) / scale
+      ]
+      switch(data.type) {
+        case 'text':
+          this.addTextGroup("请输入文字", 16, data.data, pos);
+          break;
+        case 'meta':
+          this.addImgGroup(data.data, pos);
+          break;
+        case 'back':
+          this.changeBgColor(data.data)
+          break;
+        default:
+          break;
+      }
     },
     setScaleOriginal() {
       this.scale = 1;
@@ -137,16 +165,17 @@ export default {
         });
       }
     },
-    addImgGroup(image){
+    addImgGroup(image, pos){
       const shape = {
         width: 100,
         height: 100,
       };
+      let position = pos ? pos : [
+        (this.original.width - shape.width) / 2,
+        (this.original.height - shape.height) / 2,
+      ];
       const funcGroup = new zrender.Group({
-        position: [
-          (this.original.width - shape.width) / 2,
-          (this.original.height - shape.height) / 2,
-        ],
+        position,
         isMouseDown: false,
         type: 'meta'
       });
@@ -169,7 +198,7 @@ export default {
       this.selectItem = funcGroup;
       this.mainGroup.add(funcGroup);
     },
-    addTextGroup(text, fontSize, fontFamily) {
+    addTextGroup(text, fontSize, fontFamily, pos) {
       if (!text) {
         return;
       }
@@ -177,11 +206,12 @@ export default {
         width: text.length * fontSize * 10,
         height: fontSize * 10,
       };
+      let position = pos ? pos : [
+        (this.original.width - shape.width) / 2,
+        (this.original.height - shape.height) / 2,
+      ];
       const funcGroup = new zrender.Group({
-        position: [
-          (this.original.width - shape.width) / 2,
-          (this.original.height - shape.height) / 2,
-        ],
+        position,
         isMouseDown: false,
         type:'text'
       });
