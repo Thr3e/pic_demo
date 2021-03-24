@@ -97,6 +97,9 @@ export default {
   },
   methods: {
     confirm() {
+      if (this.eType === 'text' && !this.typeList['text'].data.text) {
+        this.typeList['text'].data.text = '请输入文字'
+      }
       Bus.$emit('change-' + this.eType, this.typeList[this.eType].data)
     },
     deleteItem() {

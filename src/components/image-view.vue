@@ -49,17 +49,15 @@ export default {
   },
   methods: {
     changeScale(step) {
-      let scale = parseFloat(
+      this.scale = parseFloat(
         this.scale + step * (this.scale >= 1 ? 0.1 : 0.05)
       );
-      if (scale > 2) {
-        scale = 2;
-      }
-      if (scale < 0.1) {
-        scale = 0.1;
-      }
-      this.scale = scale;
-      this.mainGroupScale();
+    },
+    setScaleOriginal() {
+      this.scale = 1;
+    },
+    setScaleBest() {
+      this.scale = 0.4;
     },
     drop(e) {
       let data = {}
@@ -77,7 +75,7 @@ export default {
       ]
       switch(data.type) {
         case 'text':
-          this.addTextGroup("请输入文字", 16, data.data, pos);
+          this.addTextGroup("请输入文字", 160, data.data, pos);
           break;
         case 'meta':
           this.addImgGroup(data.data, pos);
@@ -88,14 +86,6 @@ export default {
         default:
           break;
       }
-    },
-    setScaleOriginal() {
-      this.scale = 1;
-      this.mainGroupScale();
-    },
-    setScaleBest() {
-      this.scale = 0.4;
-      this.mainGroupScale();
     },
     initZr() {
       const width = this.$refs.rootBox.offsetWidth;
@@ -152,15 +142,15 @@ export default {
       this.mainGroup.add(bgRect);
       this.zr.add(this.mainGroup);
     },
-    mainGroupScale() {
+    mainGroupScale(scale) {
       if (this.mainGroup && this.mainGroup.attr) {
         const width = this.$refs.rootBox.offsetWidth;
         const height = this.$refs.rootBox.offsetHeight;
         this.mainGroup.attr({
-          scale: [this.scale, this.scale],
+          scale: [scale, scale],
           position: [
-            (width - this.original.width * this.scale) / 2,
-            (height - this.original.height * this.scale) / 2,
+            (width - this.original.width * scale) / 2,
+            (height - this.original.height * scale) / 2,
           ],
         });
       }
@@ -203,8 +193,8 @@ export default {
         return;
       }
       const shape = {
-        width: text.length * fontSize * 10,
-        height: fontSize * 10,
+        width: text.length * fontSize,
+        height: fontSize,
       };
       let position = pos ? pos : [
         (this.original.width - shape.width) / 2,
@@ -228,7 +218,7 @@ export default {
           text,
           fontFamily,
           textFill: "#fff",
-          fontSize: fontSize * 10,
+          fontSize: fontSize,
           transformText: true,
           z: 1,
         },
@@ -248,6 +238,7 @@ export default {
         isMouseDown: false,
       });
       const borderRect = new zrender.Rect({
+        name: 'border-rect',
         style: {
           fill: "transparent",
           stroke: "#F45B69",
@@ -271,6 +262,7 @@ export default {
         }).bind(this),
       })
       const rotateBtn = new zrender.Circle({
+        name: 'rotate-btn',
         shape: {
           cx: shape.width + 8,
           cy: -8,
@@ -294,6 +286,7 @@ export default {
         }).bind(this),
       });
       const scaleBtn = new zrender.Circle({
+        name: 'scale-btn',
         shape: {
           cx: shape.width + 8,
           cy: shape.height + 8,
@@ -333,15 +326,12 @@ export default {
       });
     },
     scaleItem(e) {
-      const {width, height} = this.activeItem.getBoundingRect();
       const deltaX =
-        (e.event.x - this.activeItem.mousePonit.x) / (this.scale * width)
+        (e.event.x - this.activeItem.mousePonit.x) / (this.scale)
       const deltaY =
-        (e.event.y - this.activeItem.mousePonit.y) / (this.scale * height)
+        (e.event.y - this.activeItem.mousePonit.y) / (this.scale)
       this.activeItem.mousePonit = e.event;
-      this.activeItem.attr({
-        scale: [this.activeItem.scale[0] + deltaX, this.activeItem.scale[1] + deltaY],
-      });
+      this.scaleFoo(this.activeItem, deltaX, deltaY);
     },
     rotateItem(e) {
       const {width, height} = this.activeItem.getBoundingRect();
@@ -366,6 +356,55 @@ export default {
         origin: [width / 2, height / 2]
       })
     },
+    scaleFoo(item, deltaX, deltaY) {
+      item.eachChild(c => {
+        if (c instanceof zrender.Group) {
+          c.eachChild(cc => {
+            if (cc.name === 'border-rect') {
+              cc.attr({
+                shape: {
+                  width: cc.shape.width + deltaX,
+                  height: cc.shape.height + deltaY,
+                }
+              })
+            } else if (cc.name === 'rotate-btn') {
+              cc.attr({
+                position: [
+                  cc.position[0] + deltaX,
+                  cc.position[1] + 0
+                ]
+              })
+            } else if (cc.name === 'scale-btn') {
+              cc.attr({
+                position: [
+                  cc.position[0] + deltaX,
+                  cc.position[1] + deltaY
+                ]
+              })
+            }
+          })
+        } else if (c instanceof zrender.Image) {
+          c.attr({
+            style: {
+              width: c.style.width + deltaX,
+              height: c.style.height + deltaY,
+            }
+          })
+        } else if (c instanceof zrender.Rect) {
+          const tLeng = c.style.text.length;
+          const tSize = c.style.fontSize;
+          c.attr({
+            style:{
+              fontSize: (tSize * tLeng + deltaX) / tLeng
+            },
+            shape: {
+              width: c.shape.width + deltaX,
+              height: c.shape.height + deltaY,
+            }
+          })
+        }
+      })
+    },
     changeBgColor(color) {
       if (this.mainGroup && this.mainGroup.childOfName) {
         const bgRect = this.mainGroup.childOfName('bgRect')
@@ -382,49 +421,69 @@ export default {
           })
         }
       }
+    },
+    addBusListener() {
+      Bus.$on('change-back', data => {
+        if (this.mainGroup && this.mainGroup.childOfName) {
+          this.mainGroup.childOfName('bgRect').attr({
+            style: {
+              fill: data.color
+            }
+          })
+        }
+      })
+      Bus.$on('change-meta', data => {
+        if (this.mainGroup && this.mainGroup.childOfName) {
+          const {width, height} = this.selectItem.childOfName('content').style;
+          this.scaleFoo(this.selectItem, data.size - width, data.size - height);
+        }
+      })
+      Bus.$on('change-text', data => {
+        if (this.mainGroup && this.mainGroup.childOfName) {
+          const target = this.selectItem.childOfName('content');
+          const tSize = data.fontSize;
+          const tLeng = data.text.length;
+          const {width, height} = target.shape
+
+          target.attr({
+            style: {
+              text: data.text,
+              fontFamily: data.fontFamily,
+              textFill: data.textFill,
+            }
+          })
+          this.scaleFoo(this.selectItem, tSize * tLeng - width, tSize - height);
+        }
+      })
+      Bus.$on('deleteItem', () => {
+        if(this.mainGroup && this.selectItem) {
+          this.mainGroup.remove(this.selectItem);
+          this.selectItem = null;
+        }
+      })
     }
   },
   mounted() {
     this.setScaleBest();
     this.initZr();
-    this.addTextGroup("请输入文字", 16, "");
-    this.addImgGroup(require('../assets/imgs/meta_icon/canju.png'));
-    Bus.$on('change-back', data => {
-      if (this.mainGroup && this.mainGroup.childOfName) {
-        this.mainGroup.childOfName('bgRect').attr({
-          style: {
-            fill: data.color
-          }
-        })
-      }
-    })
-    Bus.$on('change-meta', data => {
-      if (this.mainGroup && this.mainGroup.childOfName) {
-        const scale = data.size / this.selectItem.childOfName('content').style.width;
-        this.selectItem.attr({
-          scale: [scale, scale]
-        })
-      }
-    })
-    Bus.$on('change-text', data => {
-      if (this.mainGroup && this.mainGroup.childOfName) {
-        this.selectItem.childOfName('content').attr({
-          style: {...data}
-        })
-      }
-    })
-    Bus.$on('deleteItem', () => {
-      if(this.mainGroup && this.selectItem) {
-        this.mainGroup.remove(this.selectItem);
-        this.selectItem = null;
-      }
-    })
+    this.addImgGroup(require('../assets/imgs/meta_icon/canju.png'), [920, 550]);
+    this.addTextGroup("请输入文字", 160, "");
+    this.addBusListener();
   },
   watch: {
+    scale(val) {
+      if (val > 2) {
+        this.scale = 2;
+      }
+      if (val < 0.1) {
+        this.scale = 0.1;
+      }
+      this.mainGroupScale(val);
+    },
     addData(val) {
       switch(val.type) {
         case 'text':
-          this.addTextGroup("请输入文字", 16, val.data);
+          this.addTextGroup("请输入文字", 160, val.data);
           break;
         case 'meta':
           this.addImgGroup(val.data);
@@ -451,7 +510,13 @@ export default {
             size: val.childOfName('content').style.width
           }
         } else if (val.type === 'text') {
-          opt.data = val.childOfName('content').style;
+          const style = val.childOfName('content').style;
+          opt.data = {
+            text: style.text,
+            fontSize: style.fontSize,
+            fontFamily: style.fontFamily,
+            textFill: style.textFill,
+          };
         }
         Bus.$emit('activeItem', opt);
       }
