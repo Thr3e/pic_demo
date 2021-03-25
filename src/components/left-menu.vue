@@ -9,7 +9,7 @@
       </li>
     </ul>
     <div class="collapse-box">
-      <Collapse :collapsed="isCollapse" :req-type="selectType"/>
+      <Collapse :collapsed="isCollapse" :req-type="selectType" v-bind="$attrs" v-on="$listeners"/>
     </div>
   </div>
 </template>

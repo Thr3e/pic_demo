@@ -21,8 +21,11 @@
               <p class="entry-title">{{data.label}}</p>
               <span class="more" @click="clickMore()">更多<i class="iconfont iconzhankai"></i></span>
               <div class="entry-list">
-                <div class="entry-item" v-for="(item, i) in data.items" :key="'entry-item-' + i">
-                  <img :src="item.src" :class="data.iconType">
+                <div class="entry-item" :class="data.iconType" v-for="(item, i) in data.items" :key="'entry-item-' + i"
+                  @click="passCData(item.param)" draggable="true" @dragstart="dragstart($event, item)" @dragend="dragend">
+                  <img v-if="item.param.type==='meta'" :src="item.src">
+                  <span v-else-if="item.param.type==='text'" :style="{fontFamily: item.param.data}">{{item.param.data}}</span>
+                  <p v-else-if="item.param.type==='back'" :style="{background: item.param.data}" class="back-item"></p>
                 </div>
               </div>
             </div>
@@ -65,6 +68,13 @@ export default {
         this.$store.commit('closeCollapse');
       }
     },
+    dragstart (event, data) {
+      this.$store.commit('closeCollapse');
+      event.dataTransfer.setData('item', JSON.stringify(data.param))
+    },
+    dragend (event) {
+      event.dataTransfer.clearData()
+    },
     btnClick(btnItem) {
 
     },
@@ -80,7 +90,12 @@ export default {
       const basicData = getBasicDataByType(type);
       this.tabBasicData = basicData.tabBasicData;
       this.btnData = basicData.btnData;
+    },
+    passCData(val){
+      //触发父组件father中的事件
+      this.$emit('getCData',val)
     }
+
   },
   watch: {
     reqType(val) {
@@ -179,19 +194,32 @@ export default {
             align-items: center;
             .entry-item {
               cursor: pointer;
+              padding: 3%; 
               text-align: center;
+              user-select: none;
               &:hover {
                 background: #E4FDE1;
               }
+              &.small {
+                width: 30%;
+              }
+              &.large {
+                width: 45%;
+              }
               img {
                 display: inline-block;
-                &.small {
-                  width: 90%;
-                  padding: 10%;
-                }
-                &.large {
-                  width: 100%;
-                }
+                width: 100%;
+              }
+              span{
+                display: inline-block;
+                width: 100%;
+                height: 4rem;
+                line-height: 4rem;
+              }
+              p{
+                display: inline-block;
+                width: 100%;
+                height: 6rem;
               }
             }
           }

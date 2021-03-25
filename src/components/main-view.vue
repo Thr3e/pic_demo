@@ -1,13 +1,13 @@
 <template>
   <div id="main-content">
     <div class="left-rect flex-rect">
-      <LeftMenu />
+      <LeftMenu @getCData="getCData"/>
     </div>
     <div class="image-rect flex-rect">
-      <ImageView />
+      <ImageView :add-data="addData"/>
     </div>
     <div class="right-rect flex-rect">
-      <RightOperator />
+      <RightOperator :etype="'文字'"/>
     </div>
   </div>
 </template>
@@ -26,9 +26,14 @@ export default {
   data() {
     return {
       isCollapse: true,
+      addData:null
     };
   },
-  methods: {},
+  methods: {
+    getCData(val){
+      this.addData = val;
+    }
+  },
 };
 </script>
 
@@ -43,6 +48,7 @@ export default {
 .left-rect {
   width: 4rem;
   background: #fff;
+  box-shadow: 1px 0 4px hsl(0deg 0% 88% / 50%);
 }
 .image-rect {
   width: calc(100% - 20rem);
@@ -50,6 +56,7 @@ export default {
 .right-rect {
   width: 16rem;
   background: #fff;
+  box-shadow: -1px 0 4px hsl(0deg 0% 88% / 50%);
 }
 .flex-rect {
   height: 100%;
